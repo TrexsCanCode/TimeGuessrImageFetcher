@@ -15,6 +15,7 @@ for value in get_daily_response.json():
     if image_count == 5:
         break
 
+    image_count += 1
     image_url = value["URL"]
 
     # Get the file name from the url.
@@ -22,9 +23,10 @@ for value in get_daily_response.json():
 
     print(f"Downloading image {image_url}...")
     image_response = requests.get(image_url, stream=True)
+    if image_response.status_code != 200:
+        print(f"Failed to download image from: {image_url}")
+        continue
 
-    with open(file_name, 'wb') as out_file:
+    with Path(file_name, 'wb').open() as out_file:
         shutil.copyfileobj(image_response.raw, out_file)
     del image_response
-
-    image_count += 1
