@@ -21,8 +21,19 @@ for value in get_daily_response.json():
 
     image_url = value["URL"]
 
+    imgur_url = "https://i.imgur.com"
+
+    if imgur_url in image_url:
+        image_url = f"https://proxy.duckduckgo.com/iu/?u={image_url}"
+
     # Get the file name from the url.
     file_name = Path(image_url).name
+
+    # Some of the images file names may contain query strings so trim anything
+    # including and after a '?'.
+    if '?' in file_name:
+        file_name = file_name.split('?')[0]
+
     output_image_path = Path(image_folder, f"{image_count + 1}_{file_name}")
 
     # Increment the image count now incase the image download fails and we restart the loop.
@@ -32,6 +43,7 @@ for value in get_daily_response.json():
     image_response = requests.get(image_url, stream=True)
     if image_response.status_code != 200:
         print(f"Failed to download image from: {image_url}")
+        print(f"Received status code: {image_response.status_code}")
         continue
 
     with Path(output_image_path).open('wb') as out_file:
