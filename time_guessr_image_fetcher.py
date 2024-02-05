@@ -13,7 +13,6 @@ def sanitise_image_file_name(file_name, image_num):
     if '?' in file_name:
         file_name = file_name.split('?')[0]
 
-    print(image_num)
     # Now replace the file name to be the image number.
     return f"{image_num}{Path(file_name).suffix}"
 
@@ -39,14 +38,9 @@ for value in get_daily_response.json():
     if imgur_url in image_url:
         image_url = f"https://proxy.duckduckgo.com/iu/?u={image_url}"
 
-    # Get the file name from the url.
-    file_name = Path(image_url).name
-
-    file_name = sanitise_image_file_name(file_name, image_count)
-
-    output_image_path = Path(image_folder, file_name)
-
-    # Increment the image count now incase the image download fails and we restart the loop.
+    # Increment the image count now incase the image download fails and we
+    # restart the loop. This will also mean the file names are not 0 indexed
+    # matching them up with the game rounds.
     image_count += 1
 
     print(f"Downloading image {image_url}...")
@@ -55,6 +49,13 @@ for value in get_daily_response.json():
         print(f"Failed to download image from: {image_url}")
         print(f"Received status code: {image_response.status_code}")
         continue
+
+    # Get the file name from the url.
+    file_name = Path(image_url).name
+
+    file_name = sanitise_image_file_name(file_name, image_count)
+
+    output_image_path = Path(image_folder, file_name)
 
     with Path(output_image_path).open('wb') as out_file:
         shutil.copyfileobj(image_response.raw, out_file)
