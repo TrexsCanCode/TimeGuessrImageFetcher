@@ -17,7 +17,7 @@ jobs:
       run: python time_guessr_image_fetcher.py
 
     - name: Zip images
-      run: zip -r images.zip images
+      run: cd images; zip -r ../images.zip *
 
     - name: Get current date
       run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
