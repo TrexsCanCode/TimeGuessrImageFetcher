@@ -7,7 +7,7 @@ image_folder = "images"
 get_daily_url = "https://timeguessr.com/getdaily"
 
 
-def sanitise_image_file_name(file_name, image_num):
+def _sanitise_image_file_name(file_name, image_num):
     # Firstly some of the images file names may contain query strings so trim
     # anything including and after a '?'.
     if '?' in file_name:
@@ -17,11 +17,10 @@ def sanitise_image_file_name(file_name, image_num):
     return f"{image_num}{Path(file_name).suffix}"
 
 
-get_daily_response = requests.get(get_daily_url)
+print(f"Getting daily game info from: {get_daily_url}")
 
-if get_daily_response.status_code != 200:
-    msg = f"Failed to query page: {get_daily_url}"
-    raise (msg)
+get_daily_response = requests.get(get_daily_url)
+get_daily_response.raise_for_status()
 
 # Create the images folder if it doesn't exist.
 Path(image_folder).mkdir(parents=True, exist_ok=True)
@@ -53,7 +52,7 @@ for value in get_daily_response.json():
     # Get the file name from the url.
     file_name = Path(image_url).name
 
-    file_name = sanitise_image_file_name(file_name, image_count)
+    file_name = _sanitise_image_file_name(file_name, image_count)
 
     output_image_path = Path(image_folder, file_name)
 
