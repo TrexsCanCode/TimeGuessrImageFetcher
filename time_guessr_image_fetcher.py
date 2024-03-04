@@ -2,28 +2,29 @@ import shutil
 from pathlib import Path
 
 import requests
+from requests import Response
 
-image_folder = "images"
-get_daily_url = "https://timeguessr.com/getdaily"
+image_folder: str = "images"
+get_daily_url: str = "https://timeguessr.com/getdaily"
 
 
-def fetch_daily_images():
+def fetch_daily_images() -> None:
     print(f"Getting daily game info from: {get_daily_url}")
 
-    get_daily_response = requests.get(get_daily_url)
+    get_daily_response: Response = requests.get(get_daily_url)
     get_daily_response.raise_for_status()
 
     # Create the images folder if it doesn't exist.
     Path(image_folder).mkdir(parents=True, exist_ok=True)
 
-    image_count = 0
+    image_count: int = 0
     for value in get_daily_response.json():
         if image_count == 5:
             break
 
-        image_url = value["URL"]
+        image_url: str = value["URL"]
 
-        imgur_url = "https://i.imgur.com"
+        imgur_url: str = "https://i.imgur.com"
 
         if imgur_url in image_url:
             image_url = f"https://proxy.duckduckgo.com/iu/?u={image_url}"
@@ -34,18 +35,18 @@ def fetch_daily_images():
         image_count += 1
 
         print(f"Downloading image {image_url}...")
-        image_response = requests.get(image_url, stream=True)
+        image_response: Response = requests.get(image_url, stream=True)
         if image_response.status_code != 200:
             print(f"Failed to download image from: {image_url}")
             print(f"Received status code: {image_response.status_code}")
             continue
 
         # Get the file name from the url.
-        file_name = Path(image_url).name
+        file_name: str = Path(image_url).name
 
         file_name = _sanitise_image_file_name(file_name, image_count)
 
-        output_image_path = Path(image_folder, file_name)
+        output_image_path: Path = Path(image_folder, file_name)
 
         with Path(output_image_path).open('wb') as out_file:
             shutil.copyfileobj(image_response.raw, out_file)
@@ -53,7 +54,7 @@ def fetch_daily_images():
         del image_response
 
 
-def _sanitise_image_file_name(file_name, image_num):
+def _sanitise_image_file_name(file_name: str, image_num: int) -> str:
     # Firstly some of the images file names may contain query strings so trim
     # anything including and after a '?'.
     if '?' in file_name:
