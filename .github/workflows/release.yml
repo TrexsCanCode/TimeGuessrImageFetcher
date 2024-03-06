@@ -33,8 +33,8 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
-      id: upload-release-asset
+    - name: Upload release asset
+      id: upload_release_asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,3 +43,15 @@ jobs:
         asset_path: ./images.zip
         asset_name: "${{ env.DATE }}.zip"
         asset_content_type: application/zip
+
+    - name: Get yesterday's date
+      run: echo "YDATE=$(date -d "yesterday 13:00" '+%Y-%m-%d')" >> $GITHUB_ENV
+
+    - name: Delete yesterday's release
+      id: delete_yesterdays_release
+      uses: dev-drprasad/delete-tag-and-release@v1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.YDATE }}
+        delete_release: true
