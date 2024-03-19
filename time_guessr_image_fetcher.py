@@ -1,3 +1,4 @@
+"""Script which gets and downloads the daily images for timeguessr."""
 import shutil
 from pathlib import Path
 
@@ -8,9 +9,11 @@ image_folder: str = "images"
 get_daily_url: str = "https://timeguessr.com/getdaily"
 
 
-def fetch_daily_images() -> None:
+def download_daily_images() -> None:
+    """Download the daily timeguessr images."""
     print(f"Getting daily game info from: {get_daily_url}")
 
+    # Get the json for the daily images.
     get_daily_response: Response = requests.get(get_daily_url)
     get_daily_response.raise_for_status()
 
@@ -55,6 +58,13 @@ def fetch_daily_images() -> None:
 
 
 def _sanitise_image_file_name(file_name: str, image_num: int) -> str:
+    """
+    Rename the file to the round number whilst preserving the original file extension.
+
+    :param file_name: The original file name.
+    :param round_num: The number of the round the image belongs to.
+    :returns: The sanitise image file name.
+    """
     # Firstly some of the images file names may contain query strings so trim
     # anything including and after a '?'.
     if '?' in file_name:
@@ -65,4 +75,4 @@ def _sanitise_image_file_name(file_name: str, image_num: int) -> str:
 
 
 if __name__ == "__main__":
-    fetch_daily_images()
+    download_daily_images()
